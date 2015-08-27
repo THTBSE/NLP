@@ -49,7 +49,9 @@ class PCFGs():
 		for term_word in lowfreq:
 			rare = self.map_word(term_word[1])
 			key = (term_word[0], rare)
-			self.unary[key] += self.unary.pop(term_word) 
+			count = self.unary[term_word]
+			self.unary[key] += count
+			self.nonterm[term_word[0]] += count 
 
 	def load_file(self,parse_file):
 		for l in open(parse_file, 'r'):
@@ -70,7 +72,6 @@ class PCFGs():
 
 	def train(self, parse_file):
 		self.load_file(parse_file)
-		#self.unary[('PP+ADP','as')] = 5
 		self.map_lowfreq_word()
 		self.get_proba()
 
