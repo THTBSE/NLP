@@ -1,4 +1,5 @@
 import math
+from collections import defaultdict
 
 class WordStatis():
 	def __init__(self):
@@ -51,13 +52,10 @@ class WordStatis():
 			#chi-square test doesn't consider term frequency
 			unique_words = set(doc)
 			#estimate the number of documents with the class 
-			self.class_word_df.setdefault(label, {})
-			self.class_word_df[label].setdefault('_class_count_', 0)
-			self.class_word_df[label]['_class_count_'] += 1
+			self.class_word_df.setdefault(label, defaultdict(float))
+			self.class_word_df[label]['_class_count_'] += 1.0
 			for word in unique_words:
-				self.class_word_df[label].setdefault(word, 0.0)
 				self.class_word_df[label][word] += 1.0
-
 				self._all_words.add(word)
 
 	def calc_x2_of_class(self, class_label):
@@ -130,8 +128,10 @@ class WordStatis():
 
 			entropy_word = entropy_non_word = 0.0
 			for cls in all_classes:
-				entropy_word -= (prob_word_class[cls] * math.log(prob_word_class[cls]))
-				entropy_non_word -= (prob_non_word_class[cls] * math.log(prob_non_word_class))
+				if prob_word_class[cls] > 0:
+					entropy_word -= (prob_word_class[cls] * math.log(prob_word_class[cls]))
+				if prob_non_word_class[cls] > 0:
+					entropy_non_word -= (prob_non_word_class[cls] * math.log(prob_non_word_class[cls]))
 
 			#IG = H(X) - H(C|X)
 			self.information_gain[word] = entropy - (entropy_word + entropy_non_word)
